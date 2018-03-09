@@ -165,8 +165,12 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda                                                                  
 
-    # IMPLEMENT THIS METHOD                                             
-    return error, error_grad
+    # IMPLEMENT THIS METHOD        
+    w = np.array([w]).T
+    t = y - np.dot(X,w)
+    error = np.dot(np.transpose(t),t)+lambd*np.dot(np.transpose(w),w)
+    error_grad = -2*np.dot(np.transpose(X),t) + 2*lambd*w
+    return error.flatten(), error_grad.flatten()
 
 def mapNonLinear(x,p):
     # Inputs:                                                                  
@@ -176,6 +180,13 @@ def mapNonLinear(x,p):
     # Xp - (N x (p+1)) 
 	
     # IMPLEMENT THIS METHOD
+    
+    N = x.shape[0]
+    Xp = np.ones((N,1))
+    x = np.array([x]).T
+    for i in range(1,p+1):
+        t = np.array(x**i)
+        Xp = np.concatenate((Xp,t),1)
     return Xp
 
 # Main script
@@ -236,8 +247,14 @@ mle = testOLERegression(w,Xtest,ytest)
 w_i = learnOLERegression(X_i,y)
 mle_i = testOLERegression(w_i,Xtest_i,ytest)
 
-print('MSE without intercept '+str(mle))
-print('MSE with intercept '+str(mle_i))
+print('MSE without intercept of test data '+str(mle))
+print('MSE with intercept of test data'+str(mle_i))
+
+mle = testOLERegression(w,X,y)
+mle_i = testOLERegression(w_i,X_i,y)
+
+print('MSE without intercept of train data'+str(mle))
+print('MSE with intercept of train data'+str(mle_i))
 
 # Problem 3
 k = 101
@@ -292,7 +309,7 @@ plt.show()
 
 # Problem 5
 pmax = 7
-lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
+lambda_opt = 0.01 # REPLACE THIS WITH lambda_opt estimated from Problem 3
 mses5_train = np.zeros((pmax,2))
 mses5 = np.zeros((pmax,2))
 for p in range(pmax):
